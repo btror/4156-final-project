@@ -2,10 +2,18 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from matplotlib import pyplot as plt
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
+
+
+fig1 = plt.figure()
+ax = plt.axes()
+
+fig2 = plt.figure()
+ax2 = plt.axes()
 
 
 def get_soup(url):
@@ -86,9 +94,52 @@ def organize_data(soup):
     return reviews
 
 
+def sentiment_analysis_nb(dataframe):
+    """
+    Train and test data using a naive bayes.
+
+    :param dataframe: A dataframe object containing reviews.
+    :type dataframe: DataFrame
+    """
+
+    x = dataframe["description"]
+    y = dataframe["rating"]
+
+    x, x_test, y, y_test = train_test_split(x, y, stratify=y, test_size=0.25, random_state=42)
+
+    vec = CountVectorizer(stop_words='english')
+    x = vec.fit_transform(x).toarray()
+    x_test = vec.transform(x_test).toarray()
+
+    model = MultinomialNB()
+    model.fit(x, y)
+
+    y_pred = model.predict(x_test)
+
+    print("_______________________________naive bayes_______________________________\n")
+    print(classification_report(y_test, y_pred))
+    print("_________________________________________________________________________\n\n\n")
+
+    # plot
+    y_test = y_test.tolist()
+    y_pred = y_pred.tolist()
+
+    # custom = "This is a really good game. No problems at all."
+    # custom = vec.transform([custom])
+    # print("prediction - ", model.predict(custom))
+
+    ax2.plot(y_test, "3", color="red", label="sample rating")
+    ax2.plot(y_pred, "4", color="blue", label="predicted rating")
+
+    for i in range(len(y_test)):
+        ax2.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
+
+    plt.legend(numpoints=1)
+
+
 def sentiment_analysis(dataframe):
     """
-    Train and test data.
+    Train and test data using a support vector classifier (SVC).
 
     :param dataframe: A dataframe object containing reviews.
     :type dataframe: DataFrame
@@ -96,7 +147,7 @@ def sentiment_analysis(dataframe):
 
     tfidf = TfidfVectorizer(max_features=20000, ngram_range=(1, 5), analyzer="char")
     X = tfidf.fit_transform(dataframe["description"])
-    y = df["sentiment"]  # can change to "rating" to guess 1-5 star instead of negative/positive
+    y = df["rating"]  # can change to "rating" to guess 1-5 star instead of negative/positive
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
@@ -104,23 +155,24 @@ def sentiment_analysis(dataframe):
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_test)
+    print("________________________support vector classifier________________________\n")
     print(classification_report(y_test, y_pred))
+    print("_________________________________________________________________________\n\n\n")
 
     y_test = y_test.tolist()
     y_pred = y_pred.tolist()
 
-    custom = "This is a really good game. No problems at all."
-    custom = tfidf.transform([custom])
-    print("prediction - ", clf.predict(custom))
+    # custom = "This is a really good game. No problems at all."
+    # custom = tfidf.transform([custom])
+    # print("prediction - ", clf.predict(custom))
 
-    plt.plot(y_test, "3", color="red", label="sample rating")
-    plt.plot(y_pred, "4", color="blue", label="predicted rating")
+    ax.plot(y_test, "3", color="red", label="sample rating")
+    ax.plot(y_pred, "4", color="blue", label="predicted rating")
 
     for i in range(len(y_test)):
-        plt.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
+        ax.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
 
-    plt.legend(numpoints=1)
-    plt.show()
+    ax.legend(numpoints=1)
 
 
 def save_data(link):
@@ -143,6 +195,7 @@ def save_data(link):
 
 
 if __name__ == '__main__':
+
     # link to Amazon product reviews
     product_link = "https://www.amazon.com/Xbox-Wireless-Controller-Pulse-Red-Windows-Devices/product-reviews" \
                    "/B0859XT328/ref=cm_cr_getr_d_paging_btm_prev_1?ie=UTF8&reviewerType=all_reviews&pageNumber=1"
@@ -153,5 +206,10 @@ if __name__ == '__main__':
     # read amazon review data from the csv file
     df = pd.read_csv("data/amazon_review_data.csv")
 
-    # perform a ML sentiment analysis
+    # perform a ML sentiment analysis (support vectorizer classifier)
     sentiment_analysis(df)
+
+    # perform a ML sentiment analysis (naive bayes)
+    sentiment_analysis_nb(df)
+
+    plt.show()
