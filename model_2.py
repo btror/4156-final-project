@@ -5,6 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.svm import LinearSVC
 
+ax = plt.axes()
+
 
 def categorize(dataframe):
     """
@@ -31,26 +33,22 @@ def categorize(dataframe):
     y_test = y_test.tolist()
     y_pred = y_pred.tolist()
 
-    # custom = "I like equations"
-    # custom = tfidf.transform([custom])
-    # print("prediction - ", clf.predict(custom))
+    ax.plot(y_test[0:50], "3", color="red", label="sample (actual) category")
+    ax.plot(y_pred[0:50], "4", color="blue", label="predicted category")
 
-    plt.plot(y_test, "3", color="red", label="sample rating")
-    plt.plot(y_pred, "4", color="blue", label="predicted rating")
+    for i in range(50):  # len(y_test)
+        ax.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
 
-    for i in range(len(y_test)):
-        plt.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
+    ax.legend(numpoints=1)
 
-    plt.legend(numpoints=1)
+    ax.set_title("classification - SVC")
+    ax.set_xlabel("50 sample Jeopardy questions")
+    ax.set_ylabel("category")
 
 
 if __name__ == '__main__':
-
     # read jeopardy data from the csv file
     df = pd.read_csv("data/jeopardy_data.csv")
-
-    # History, Science, Literature
-    df.to_csv("data/jeopardy_data.csv", index=False)
 
     # perform a ML sentiment analysis (support vectorizer classifier)
     categorize(df)

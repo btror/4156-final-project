@@ -8,7 +8,6 @@ from sklearn.metrics import classification_report
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
-
 fig1 = plt.figure()
 ax = plt.axes()
 
@@ -104,6 +103,7 @@ def sentiment_analysis_nb(dataframe):
 
     x = dataframe["description"]
     y = dataframe["rating"]
+    # y = dataframe["sentiment"]
 
     x, x_test, y, y_test = train_test_split(x, y, stratify=y, test_size=0.25, random_state=42)
 
@@ -118,23 +118,26 @@ def sentiment_analysis_nb(dataframe):
 
     print("_______________________________naive bayes_______________________________\n")
     print(classification_report(y_test, y_pred))
-    print("_________________________________________________________________________\n\n\n")
+    print("_________________________________________________________________________\n\n")
 
     # plot
     y_test = y_test.tolist()
     y_pred = y_pred.tolist()
 
-    # custom = "This is a really good game. No problems at all."
-    # custom = vec.transform([custom])
-    # print("prediction - ", model.predict(custom))
+    # statement = "Fortnite is a garbage game"
+    # s = vec.transform([statement])
+    # print("Prediction: the statement \"" + statement + "\" portrays a " + str(model.predict(s)[0]) + " sentiment.")
 
-    ax2.plot(y_test, "3", color="red", label="sample rating")
-    ax2.plot(y_pred, "4", color="blue", label="predicted rating")
+    ax2.plot(y_test[0:50], "3", color="red", label="sample (actual) rating")
+    ax2.plot(y_pred[0:50], "4", color="blue", label="predicted rating")
 
-    for i in range(len(y_test)):
+    for i in range(50):  # len(y_test)
         ax2.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
 
-    plt.legend(numpoints=1)
+    ax2.legend(numpoints=1)
+    ax2.set_title("sentiment analysis - naive bayes")
+    ax2.set_xlabel("50 sample Amazon reviews")
+    ax2.set_ylabel("review rating")
 
 
 def sentiment_analysis(dataframe):
@@ -148,6 +151,7 @@ def sentiment_analysis(dataframe):
     tfidf = TfidfVectorizer(max_features=20000, ngram_range=(1, 5), analyzer="char")
     X = tfidf.fit_transform(dataframe["description"])
     y = df["rating"]  # can change to "rating" to guess 1-5 star instead of negative/positive
+    # y = dataframe["sentiment"]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
@@ -157,22 +161,25 @@ def sentiment_analysis(dataframe):
     y_pred = clf.predict(X_test)
     print("________________________support vector classifier________________________\n")
     print(classification_report(y_test, y_pred))
-    print("_________________________________________________________________________\n\n\n")
+    print("_________________________________________________________________________\n\n")
 
     y_test = y_test.tolist()
     y_pred = y_pred.tolist()
 
-    # custom = "This is a really good game. No problems at all."
-    # custom = tfidf.transform([custom])
-    # print("prediction - ", clf.predict(custom))
+    # statement = "Battlefield 2042 has performance issues"
+    # s = tfidf.transform([statement])
+    # print("Prediction: the statement \"" + statement + "\" portrays a " + str(clf.predict(s)[0]) + " sentiment.")
 
-    ax.plot(y_test, "3", color="red", label="sample rating")
-    ax.plot(y_pred, "4", color="blue", label="predicted rating")
+    ax.plot(y_test[0:50], "3", color="red", label="sample (actual) rating")
+    ax.plot(y_pred[0:50], "4", color="blue", label="predicted rating")
 
-    for i in range(len(y_test)):
+    for i in range(50):  # len(y_test)
         ax.vlines(x=i, ymin=y_test[i], ymax=y_pred[i], color="black")
 
     ax.legend(numpoints=1)
+    ax.set_title("sentiment analysis - SVC")
+    ax.set_xlabel("50 sample Amazon reviews")
+    ax.set_ylabel("review rating")
 
 
 def save_data(link):
@@ -195,7 +202,6 @@ def save_data(link):
 
 
 if __name__ == '__main__':
-
     # link to Amazon product reviews
     product_link = "https://www.amazon.com/Xbox-Wireless-Controller-Pulse-Red-Windows-Devices/product-reviews" \
                    "/B0859XT328/ref=cm_cr_getr_d_paging_btm_prev_1?ie=UTF8&reviewerType=all_reviews&pageNumber=1"
