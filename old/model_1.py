@@ -210,7 +210,7 @@ if __name__ == '__main__':
     # save_data(product_link)
 
     # read amazon review data from the csv file
-    df = pd.read_csv("data/amazon_review_data.csv")
+    df = pd.read_csv("../data/amazon_review_data.csv")
 
     # perform a ML sentiment analysis (support vectorizer classifier)
     sentiment_analysis(df)

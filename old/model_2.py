@@ -48,7 +48,7 @@ def categorize(dataframe):
 
 if __name__ == '__main__':
     # read jeopardy data from the csv file
-    df = pd.read_csv("data/jeopardy_data.csv")
+    df = pd.read_csv("../data/jeopardy_data.csv")
 
     # perform a ML sentiment analysis (support vectorizer classifier)
     categorize(df)
